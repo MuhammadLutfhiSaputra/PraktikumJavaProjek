@@ -1,5 +1,7 @@
 package frame;
 
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 import helpres.ComboBoxItem;
 import helpres.Koneksi;
 
@@ -23,6 +25,7 @@ public class KecamatanInputFrame  extends JFrame{
     private JTextField luasTextField;
     private JLabel luasLabel;
     private JTextField emailTextField;
+    private DatePicker tanggalMulaiDatePicker;
     private ButtonGroup klasifikasiButtonGroup;
 
     private int id;
@@ -113,6 +116,17 @@ public class KecamatanInputFrame  extends JFrame{
                 return;
             }
 
+            //validasi tanggal mulai
+            String tanggalMulai = tanggalMulaiDatePicker.getText();
+            if (tanggalMulai.equals("")) {
+                JOptionPane.showMessageDialog(null,
+                        "Isi Tanggal Mulai",
+                        "Validasi data kosong",
+                        JOptionPane.WARNING_MESSAGE);
+                tanggalMulaiDatePicker.requestFocus();
+                return;
+            }
+
             Connection c = Koneksi.getConnection();
             PreparedStatement ps;
             try {
@@ -127,7 +141,7 @@ public class KecamatanInputFrame  extends JFrame{
                                 "Data sama sudah ada"
                         );
                     } else {
-                        String insertSQL = "INSERT INTO kecamatan (id, nama, kabupaten_id, klasifikasi, populasi, luas, email) VALUES (NULL, ?, ?, ?, ?, ?, ?)";
+                        String insertSQL = "INSERT INTO kecamatan (id, nama, kabupaten_id, klasifikasi, populasi, luas, email, tanggalmulai) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)";
                         ps = c.prepareStatement(insertSQL);
                         ps.setString(1, nama);
                         ps.setInt(2, kabupatenId);
@@ -135,6 +149,7 @@ public class KecamatanInputFrame  extends JFrame{
                         ps.setInt(4, populasi);
                         ps.setDouble(5, luas);
                         ps.setString(6, email);
+                        ps.setString(7, tanggalMulai);
                         ps.executeUpdate();
                         dispose();
                     }
@@ -150,7 +165,7 @@ public class KecamatanInputFrame  extends JFrame{
                                 "Data sama sudah ada"
                         );
                     } else {
-                        String updateSQL = "UPDATE kecamatan SET nama = ?, kabupaten_id = ?, klasifikasi = ?, populasi = ?, luas = ?, email = ? WHERE id = ?";
+                        String updateSQL = "UPDATE kecamatan SET nama = ?, kabupaten_id = ?, klasifikasi = ?, populasi = ?, luas = ?, email = ?, tanggalmulai = ? WHERE id = ?";
                         ps = c.prepareStatement(updateSQL);
                         ps.setString(1, nama);
                         ps.setInt(2, kabupatenId);
@@ -158,7 +173,8 @@ public class KecamatanInputFrame  extends JFrame{
                         ps.setInt(4, populasi);
                         ps.setDouble(5, luas);
                         ps.setString(6, email);
-                        ps.setInt(7, id);
+                        ps.setString(7, tanggalMulai);
+                        ps.setInt(8, id);
                         ps.executeUpdate();
                         dispose();
                     }
@@ -213,6 +229,8 @@ public class KecamatanInputFrame  extends JFrame{
 
                 populasiTextField.setText(String.valueOf(rs.getInt("populasi")));
                 luasTextField.setText(String.valueOf(rs.getDouble("luas")));
+                emailTextField.setText(String.valueOf(rs.getString("email")));
+                tanggalMulaiDatePicker.setText(rs.getString("tanggalmulai"));
 
 
             }
@@ -274,6 +292,10 @@ public class KecamatanInputFrame  extends JFrame{
         klasifikasiButtonGroup = new ButtonGroup();
         klasifikasiButtonGroup.add(tipeARadioButton);
         klasifikasiButtonGroup.add(tipeBRadioButton);
+
+        DatePickerSettings dps = new DatePickerSettings();
+        dps.setFormatForDatesCommonEra("yyyy-MM-dd");
+        tanggalMulaiDatePicker.setSettings(dps);
 
     }
 }
